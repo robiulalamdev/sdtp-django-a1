@@ -2,8 +2,46 @@ from django.shortcuts import render, redirect, HttpResponse
 from events.forms import CategoryForm, EventForm, ParticipantForm
 from events.models import Event, Category, Participant
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Sum, Q
+from django.utils.timezone import now, timedelta
 
+def Dashboard(request):
+    current_date = now().date()
+
+    counts = Event.objects.aggregate(
+        total_events=Count('id', distinct=True),
+        total_participants=Count('participants'),
+        upcoming_events=Count('id', filter=Q(date__gt=current_date), distinct=True),
+        past_events=Count('id', filter=Q(date__lt=current_date)),
+    )
+
+
+    event_type = request.GET.get('type', 'today')  
+    event_name = "Today’s Events"
+
+    # Events filtered based on type
+    if event_type == 'upcoming':
+        event_name = "Upcoming Events"
+        events = Event.objects.filter(date__gt=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+    elif event_type == 'past':
+        event_name = "Past Events"
+        events = Event.objects.filter(date__lt=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+    elif event_type == 'today':
+        event_name = "Today’s Events"
+        events = Event.objects.filter(date=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+    else:  # 'all' or any other value
+        event_name = "Total Events"
+        events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+
+    
+    print(events)
+    context = {
+        'counts': counts,
+        'events': events,
+        'event_type': event_type,
+        'event_name': event_name,  
+    }
+    return render(request, 'dashboard/dashboard.html', context)
 
 
 # Home view
@@ -11,18 +49,17 @@ def home(request):
     search = request.GET.get('search')
 
     if search:
-        events = Event.objects.filter(name__icontains=search).select_related('category').prefetch_related('participants')
+        events = Event.objects.filter(
+            Q(name__icontains=search) | Q(location__icontains=search)
+        ).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
     else:
-        events = Event.objects.select_related('category').prefetch_related('participants')
-
-    categories = Category.objects.all()
-    participants = Participant.objects.all()
+        events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
 
     # Prepare context
     context = {
         'events': events,
-        'categories': categories,
-        'participants': participants,
+        'categories': [],
+        'participants': [],
     }
     return render(request, 'events/events.html', context)  
 
@@ -33,7 +70,7 @@ def create_event(request):
         form = EventForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('home')  
+            return redirect('events')  
     else:
         form = EventForm()
     return render(request, 'events/event_form.html', {'form': form, 'title': 'Create Event', 'button_text': 'Create'})
@@ -49,12 +86,19 @@ def event_update(request, id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Event updated successfully!')
-            return redirect('home')  
+            return redirect('events')  
     else:
         form = EventForm(instance=event)
 
     return render(request, 'events/event_form.html', {'form': form, 'title': 'Update Event', 'button_text': 'Update'})
 
+
+# Event delete view
+def event_delete(request, id):
+    event = Event.objects.get(id=id)
+    event.delete()
+    messages.success(request, 'Event deleted successfully!')
+    return redirect('events')
 
 
 
@@ -75,9 +119,6 @@ def EventDetails(request, id):
         return render(request, 'events/event-details.html', context)
 
 
-# Dashboard view
-def Dashboard(request):
-    return render(request, 'dashboard/dashboard.html')
 
 
 # Category views
