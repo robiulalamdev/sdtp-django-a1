@@ -33,10 +33,29 @@ def create_event(request):
         form = EventForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('dashboard')  # Replace with your actual redirect
+            return redirect('home')  
     else:
         form = EventForm()
-    return render(request, 'event_form.html', {'form': form})
+    return render(request, 'events/event_form.html', {'form': form, 'title': 'Create Event', 'button_text': 'Create'})
+
+
+
+# event update view
+def event_update(request, id):
+    
+    event = Event.objects.get(id=id)
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Event updated successfully!')
+            return redirect('home')  
+    else:
+        form = EventForm(instance=event)
+
+    return render(request, 'events/event_form.html', {'form': form, 'title': 'Update Event', 'button_text': 'Update'})
+
+
 
 
 
@@ -99,7 +118,7 @@ def category_update(request, id):
 
 def Show_Participants(request):
     participants = Participant.objects.annotate(total_events=Count('events')).order_by('-id')
-    return render(request, 'participants/participants.html', {'participants': participants})
+    return render(request, 'participant/participants.html', {'participants': participants})
 
 
 
@@ -112,7 +131,23 @@ def create_participant(request):
             return redirect('participants')
     else:
         form = ParticipantForm()
-    return render(request, 'participants/participant_form.html', {'form': form, 'title': 'Create Participant', 'button_text': 'Create'})
+    return render(request, 'participant/participant_form.html', {'form': form, 'title': 'Create Participant', 'button_text': 'Create'})
+
+
+# Participant update view
+def participant_update(request, id):
+    
+    participant = Participant.objects.get(id=id)
+    if request.method == 'POST':
+        form = ParticipantForm(request.POST, instance=participant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Participant updated successfully!')
+            return redirect('participants')  
+    else:
+        form = ParticipantForm(instance=participant)
+
+    return render(request, 'participant/participant_form.html', {'form': form, 'title': 'Update Participant', 'button_text': 'Update'})
 
 
 
