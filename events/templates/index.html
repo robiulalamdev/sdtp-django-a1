@@ -20,22 +20,25 @@
       }
     </style>
 </head>
-<body class="">
+<body class="bg-gradient-to-br from-gray-50 via-gray-300 to-gray-50 min-h-screen">
     <header class="bg-black text-white">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between py-1">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <img src="https://lakemacfamilylife.com.au/wp-content/uploads/2024/09/event-cinemas-glendale-main.jpg" alt="Logo" class="max-w-[100px] object-contain mr-2">
+                    <a href="/">
+                        <img src="https://lakemacfamilylife.com.au/wp-content/uploads/2024/09/event-cinemas-glendale-main.jpg" alt="Logo" class="max-w-[100px] object-contain mr-2">
+                    </a>
             
                 </div>
     
                 <!-- Navigation for larger screens -->
                 <nav class="hidden md:flex space-x-4">
-                    <a href="#" class="hover:text-blue-200 transition">Dashboard</a>
-                    <a href="#" class="hover:text-blue-200 transition">Events</a>
-                    <a href="#" class="hover:text-blue-200 transition">Participants</a>
-                    <a href="#" class="hover:text-blue-200 transition">Categories</a>
+                    <a href="/" class="hover:text-blue-200 transition">Home</a>
+                    <a href="/dashboard" class="hover:text-blue-200 transition">Dashboard</a>
+                    <a href="/events" class="hover:text-blue-200 transition">Events</a>
+                    <a href="/participants" class="hover:text-blue-200 transition">Participants</a>
+                    <a href="/categories" class="hover:text-blue-200 transition">Categories</a>
                 </nav>
     
                 <!-- Mobile menu button -->
@@ -50,48 +53,23 @@
     
             <!-- Mobile menu -->
             <div id="mobile-menu" class="md:hidden hidden pb-4">
-                <a href="#" class="block py-2 hover:text-blue-200 transition">Dashboard</a>
-                <a href="#" class="block py-2 hover:text-blue-200 transition">Events</a>
-                <a href="#" class="block py-2 hover:text-blue-200 transition">Participants</a>
-                <a href="#" class="block py-2 hover:text-blue-200 transition">Categories</a>
+                <a href="/" class="block py-2 hover:text-blue-200 transition">Home</a>
+                <a href="/dashboard" class="block py-2 hover:text-blue-200 transition">Dashboard</a>
+                <a href="/events" class="block py-2 hover:text-blue-200 transition">Events</a>
+                <a href="/participants" class="block py-2 hover:text-blue-200 transition">Participants</a>
+                <a href="/categories" class="block py-2 hover:text-blue-200 transition">Categories</a>
             </div>
         </div>
     </header>
     <main>
 
-        <div class="relative">
-            <!-- Banner Image -->
-            <div class="w-full h-[400px] relative">
-                <img  src="https://t4.ftcdn.net/jpg/05/23/17/51/360_F_523175152_3JBaaFzHADLVZ2xifbflTpDx94HQu1rO.jpg" alt="Event Management System Banner" class="w-full h-full object-cover">
-            </div>
-    
-            <!-- Overlay Content -->
-            <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center p-4">
-                <!-- Title and Subtitle -->
-                <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 text-center">
-                    Event Management System
-                </h1>
-                <p class="text-xl md:text-2xl text-white mb-8 text-center">
-                    Plan, Organize, and Execute Flawless Events
-                </p>
-    
-                <!-- Search Field and Button -->
-                <div class="w-full max-w-md flex">
-                    <input
-                        type="text"
-                        placeholder="Search events..."
-                        class="w-full px-4 py-2 rounded-l-lg focus:outline-none"
-                    >
-                    <button class="bg-blue-600 text-white px-6 py-2 rounded-r-lg hover:bg-blue-700 transition duration-300">
-                        Search
-                    </button>
-                </div>
-            </div>
-        </div>
-
-      <div class="container mx-auto mt-8 px-4">
-        
-      </div>
+        {% block dashboard %}{% endblock dashboard %}
+       {% block events %}{% endblock events %}
+       {% block event_details %}{% endblock event_details %}
+       {% block categories %}{% endblock categories %}
+       {% block category_form %}{% endblock category_form %}
+       {% block Participants %}{% endblock Participants %}
+       {% block participant_form %}{% endblock participant_form %}
     </main>
 
     <script>
