@@ -51,21 +51,61 @@ def Dashboard(request):
 # Home view
 def home(request):
     search = request.GET.get('search')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    category = request.GET.get('category')
 
+    # Start with a base queryset
+    events = Event.objects.select_related('category').annotate(
+        total_participants=Count('participants', distinct=True)  # Optimize participant count
+    )
+
+  
     if search:
-        events = Event.objects.filter(
+        events = events.filter(
             Q(name__icontains=search) | Q(location__icontains=search)
-        ).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
-    else:
-        events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
+        )
+
+    if start_date:
+        events = events.filter(date__gte=start_date)
+
+    if end_date:
+        events = events.filter(date__lte=end_date)
+
+    if category:
+        events = events.filter(category_id=category)
+
+    categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
 
     # Prepare context
     context = {
         'events': events,
-        'categories': [],
-        'participants': [],
+        'categories': categories,
+        'participants': [],  # Adjust based on additional participant handling
     }
-    return render(request, 'events/events.html', context)  
+
+    return render(request, 'events/events.html', context)
+# def home(request):
+#     search = request.GET.get('search')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+#     category = request.GET.get('category')
+
+#     if search:
+#         events = Event.objects.filter(
+#             Q(name__icontains=search) | Q(location__icontains=search)
+#         ).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
+#     else:
+#         events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
+
+#     categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
+#     # Prepare context
+#     context = {
+#         'events': events,
+#         'categories': categories,
+#         'participants': [],
+#     }
+#     return render(request, 'events/events.html', context)  
 
 
 # Create event view
