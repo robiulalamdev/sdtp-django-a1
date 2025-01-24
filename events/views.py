@@ -10,7 +10,7 @@ def Dashboard(request):
 
     counts = Event.objects.aggregate(
         total_events=Count('id', distinct=True),
-        total_participants=Count('participants'),
+        total_participants=Count('participants', distinct=True),
         upcoming_events=Count('id', filter=Q(date__gt=current_date), distinct=True),
         past_events=Count('id', filter=Q(date__lt=current_date)),
     )
@@ -22,17 +22,19 @@ def Dashboard(request):
     # Events filtered based on type
     if event_type == 'upcoming':
         event_name = "Upcoming Events"
-        events = Event.objects.filter(date__gt=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+        events = Event.objects.filter(date__gt=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
     elif event_type == 'past':
         event_name = "Past Events"
-        events = Event.objects.filter(date__lt=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+        events = Event.objects.filter(date__lt=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
     elif event_type == 'today':
         event_name = "Today’s Events"
-        events = Event.objects.filter(date=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+        events = Event.objects.filter(date=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
     else:  # 'all' or any other value
         event_name = "Total Events"
-        events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+        events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
 
+    categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
+    participants = Participant.objects.annotate(total_events=Count('events')).order_by('-id')
     
     print(events)
     context = {
@@ -40,6 +42,8 @@ def Dashboard(request):
         'events': events,
         'event_type': event_type,
         'event_name': event_name,  
+        'categories': categories,
+        'participants': participants,
     }
     return render(request, 'dashboard/dashboard.html', context)
 
@@ -51,9 +55,9 @@ def home(request):
     if search:
         events = Event.objects.filter(
             Q(name__icontains=search) | Q(location__icontains=search)
-        ).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+        ).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
     else:
-        events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants'))
+        events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
 
     # Prepare context
     context = {
@@ -157,6 +161,16 @@ def category_update(request, id):
 
 
 
+# Category delete view
+def category_delete(request, id):
+    category = Category.objects.get(id=id)
+    category.delete()
+    messages.success(request, 'Category deleted successfully!')
+    return redirect('categories')
+
+
+
+
 def Show_Participants(request):
     participants = Participant.objects.annotate(total_events=Count('events')).order_by('-id')
     return render(request, 'participant/participants.html', {'participants': participants})
@@ -192,55 +206,13 @@ def participant_update(request, id):
 
 
 
+# Category delete view
+def participant_delete(request, id):
+    participant = Participant.objects.get(id=id)
+    participant.delete()
+    messages.success(request, 'Participant deleted successfully!')
+    return redirect('participants')
 
 
 
 
-# def event_create(request):
-#     if request.method == 'POST':
-#         form = EventForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Event created successfully!')
-#             return redirect('event_list')  # Assuming you have a list view
-#     else:
-#         form = EventForm()
-#     return render(request, 'event_create.html', {'form': form})
-
-
-# def event_update(request, pk):
-#     event = get_object_or_404(Event, pk=pk)
-#     if request.method == 'POST':
-#         form = EventForm(request.POST, instance=event)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Event updated successfully!')
-#             return redirect('event_detail')  # Assuming you have a detail view
-#     else:
-#         form = EventForm(instance=event)
-#     return render(request, 'event_update.html', {'form': form, 'event': event})
-
-
-# def participant_create(request):
-#     if request.method == 'POST':
-#         form = ParticipantForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Participant created successfully!')
-#             return redirect('participant_list')  # Assuming you have a list view
-#     else:
-#         form = ParticipantForm()
-#     return render(request, 'participant_create.html', {'form': form})
-
-
-# def participant_update(request, pk):
-#     participant = get_object_or_404(Participant, pk=pk)
-#     if request.method == 'POST':
-#         form = ParticipantForm(request.POST, instance=participant)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Participant updated successfully!')
-#             return redirect('participant_detail')  # Assuming you have a detail view
-#     else:
-#         form = ParticipantForm(instance=participant)
-#     return render(request, 'participant_update.html', {'form': form, 'participant': participant})
