@@ -6,6 +6,8 @@ from django.contrib import messages
 from events.models import Event, Category
 from events.forms import EventForm, CategoryForm
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required, user_passes_test
+from users.views import is_admin, is_organizer_or_admin
 
 # 📌 Dashboard View
 def Dashboard(request):
@@ -100,18 +102,22 @@ def home(request):
 
 
 # 📌 Create Event
+@login_required
+@user_passes_test(is_organizer_or_admin, login_url='permission_denied')
 def create_event(request):
     if request.method == 'POST':
         form = EventForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('events')  
+            return redirect('home')  
     else:
         form = EventForm()
     return render(request, 'events/event_form.html', {'form': form, 'title': 'Create Event', 'button_text': 'Create'})
 
 
 # 📌 Update Event
+@login_required
+@user_passes_test(is_organizer_or_admin, login_url='permission_denied')
 def event_update(request, id):
     event = get_object_or_404(Event, id=id)
     if request.method == 'POST':
@@ -127,6 +133,8 @@ def event_update(request, id):
 
 
 # 📌 Delete Event
+@login_required
+@user_passes_test(is_organizer_or_admin, login_url='permission_denied')
 def event_delete(request, id):
     event = get_object_or_404(Event, id=id)
     event.delete()
@@ -153,6 +161,8 @@ def Show_Categories(request):
 
 
 # 📌 Create Category
+@login_required
+@user_passes_test(is_organizer_or_admin, login_url='permission_denied')
 def create_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -165,6 +175,8 @@ def create_category(request):
 
 
 # 📌 Update Category
+@login_required
+@user_passes_test(is_organizer_or_admin, login_url='permission_denied')
 def category_update(request, id):
     category = get_object_or_404(Category, id=id)
     if request.method == 'POST':
@@ -180,6 +192,8 @@ def category_update(request, id):
 
 
 # 📌 Delete Category
+@login_required
+@user_passes_test(is_organizer_or_admin, login_url='permission_denied')
 def category_delete(request, id):
     category = get_object_or_404(Category, id=id)
     category.delete()
@@ -194,6 +208,7 @@ def Show_Participants(request):
 
 
 # 📌 Create Participant (User)
+@user_passes_test(is_admin, login_url='permission_denied')
 def create_participant(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)  # ✅ Fix: Use Django's User form
@@ -206,6 +221,7 @@ def create_participant(request):
 
 
 # 📌 Update Participant (User)
+@user_passes_test(is_admin, login_url='permission_denied')
 def participant_update(request, id):
     participant = get_object_or_404(User, id=id)
     if request.method == 'POST':
@@ -221,6 +237,7 @@ def participant_update(request, id):
 
 
 # 📌 Delete Participant (User)
+@user_passes_test(is_admin, login_url='permission_denied')
 def participant_delete(request, id):
     participant = get_object_or_404(User, id=id)
     participant.delete()

@@ -1,5 +1,5 @@
 from django.urls import path
-from users.views import sign_up, sign_in, sign_out, activate_user, admin_dashboard, create_group, assign_role, delete_user, add_participants, delete_group, remove_participant
+from users.views import sign_up, sign_in, sign_out, activate_user, admin_dashboard, create_group, assign_role, delete_user, add_participants, delete_group, remove_participant, organizer_dashboard, participant_dashboard
 from django.contrib.auth.views import LogoutView
 
 
@@ -17,4 +17,10 @@ urlpatterns = [
 
     # for groups
     path('admin/delete-group/<int:group_id>/', delete_group, name='delete-group'),
+
+    # for Organizer
+    path('organizer/dashboard/', organizer_dashboard, name='organizer-dashboard'),
+
+    # for Organizer
+    path('participant/dashboard/', participant_dashboard, name='participant-dashboard'),
 ]

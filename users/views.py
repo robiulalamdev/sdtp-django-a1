@@ -11,7 +11,7 @@ from django.db.models import Prefetch, Count, Sum, Q
 from django.contrib.auth.views import LoginView
 from django.views.generic import  UpdateView
 from django.contrib.auth import get_user_model
-from events.models import Event
+from events.models import Event, Category
 
 
 
@@ -20,6 +20,16 @@ User = get_user_model()
 
 def is_admin(user):
     return user.groups.filter(name='Admin').exists()
+
+def is_organizer(user):
+    return user.groups.filter(name='Organizer').exists()
+
+def is_participant(user):
+    return user.groups.filter(name='Participant').exists()
+
+def is_organizer_or_admin(user):
+    # Check if the user belongs to either 'Organizer' or 'Admin' group
+    return user.groups.filter(name__in=['Organizer', 'Admin']).exists()
 
 
 def sign_up(request):
@@ -96,9 +106,7 @@ def admin_dashboard(request):
     participants = User.objects.filter(events__isnull=False).values(
     'events__id', 'events__name', 'id', 'username'
     )
-
-    print("participants: ",participants[0])
-
+    categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
 
 
     for user in users:
@@ -107,9 +115,42 @@ def admin_dashboard(request):
         else:
             user.group_name = 'No Assigned'
 
-    return render(request, 'dashboard/admin_dashboard.html', {"users": users, 'events':events, 'groups': groups, 'participants': participants})
+    context = {
+        "users": users, 
+        'events':events, 
+        'groups': groups, 
+        'participants': participants,
+        'categories': categories
+    }
+    return render(request, 'dashboard/admin_dashboard.html', context)
 
 
+
+# ORGANIGER
+@user_passes_test(is_organizer, login_url='permission_denied')
+def organizer_dashboard(request):
+    events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
+    categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
+
+    context = {
+        'events':events, 
+        'categories': categories
+    }
+    return render(request, 'organizer/organizer_dashboard.html', context)
+
+
+# Participant
+@login_required
+@user_passes_test(is_participant, login_url='permission_denied')
+def participant_dashboard(request):
+    events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
+    context = {
+        'events':events,
+    }
+    return render(request, 'participant/participant_dashboard.html', context)
+
+
+@login_required
 @user_passes_test(is_admin, login_url='permission_denied')
 def assign_role(request, user_id):
     user = User.objects.get(id=user_id)
@@ -128,6 +169,7 @@ def assign_role(request, user_id):
     return render(request, 'dashboard/assign_role.html', {"form": form})
 
 
+@login_required
 @user_passes_test(is_admin, login_url='permission_denied')
 def create_group(request):
     form = CreateGroupForm()
@@ -143,6 +185,7 @@ def create_group(request):
     return render(request, 'dashboard/create_group.html', {'form': form})
 
 
+@login_required
 @user_passes_test(is_admin, login_url='permission_denied')
 def group_list(request):
     groups = Group.objects.prefetch_related('permissions').all()
@@ -165,7 +208,8 @@ def delete_user(request, user_id):
     return redirect('admin-dashboard')  
 
 
-
+@login_required
+@user_passes_test(is_organizer_or_admin, login_url='permission_denied')
 def add_participants(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
@@ -174,14 +218,15 @@ def add_participants(request, event_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Participants added successfully!")
-            return redirect('event_details', id=event_id)
+            return redirect('admin-dashboard')
     else:
         form = AddParticipantForm(instance=event)
 
     return render(request, 'dashboard/add_participants.html', {'form': form, 'event': event})
 
 
-
+@login_required
+@user_passes_test(is_admin, login_url='permission_denied')
 def delete_group(request, group_id):
     try:
         group = Group.objects.get(id=group_id)
@@ -193,7 +238,8 @@ def delete_group(request, group_id):
     return redirect('admin-dashboard')  
 
 
-
+@login_required
+@user_passes_test(is_admin, login_url='permission_denied')
 def remove_participant(request, event_id, user_id):
     event = get_object_or_404(Event, id=event_id)
     user = get_object_or_404(User, id=user_id)

@@ -1,11 +1,9 @@
-{% block Event_list %}
+{% extends "main.html" %}
 
+{% block Participant_dashboard %}
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-4xl font-extrabold text-purple-800">{{event_name}}</h1>
-      <a href="/events/create">
-        <button class="px-[12px] py-[8px] bg-black text-white shadow rounded-md text-sm">Create Event</button>
-      </a>
+      <h1 class="text-4xl font-extrabold text-purple-800">Events list</h1>
     </div>
     <div class="overflow-x-auto bg-white shadow-md rounded-lg">
         <table class="min-w-full leading-normal">
@@ -74,22 +72,6 @@
                                     View
                                 </button>
                             </a>
-                            <a href="{% url 'update-event' event.id %}" class="text-yellow-600 hover:text-yellow-900">
-                                <button class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
-                                    Edit
-                                </button>
-                            </a>
-                            <a href="{% url 'add-participants' event.id %}" class="text-green-600 hover:text-green-900">
-                                <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                    Add Participant
-                                </button>
-                            </a>
-                            <form action="{% url 'delete-event' event.id %}" method="post" class="inline">
-                                {% csrf_token %}
-                                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                                    Delete
-                                </button>
-                            </form>
                         </div>
                     </td>
                 </tr>
@@ -106,4 +88,5 @@
     </div>
 </div>
 
-{% endblock Event_list %}
+
+{% endblock Participant_dashboard %}
