@@ -1,5 +1,5 @@
 from django.urls import path
-from users.views import sign_up, sign_in, sign_out, activate_user, admin_dashboard, create_group, assign_role, delete_user, add_participants, delete_group, remove_participant, organizer_dashboard, participant_dashboard
+from users.views import sign_up, sign_in, sign_out, activate_user, admin_dashboard, create_group, assign_role, delete_user, add_participants, delete_group, remove_participant, organizer_dashboard, participant_dashboard, rsvp_event
 from django.contrib.auth.views import LogoutView
 
 
@@ -23,4 +23,7 @@ urlpatterns = [
 
     # for Organizer
     path('participant/dashboard/', participant_dashboard, name='participant-dashboard'),
+
+    # others
+    path('rsvp/<int:event_id>/', rsvp_event, name='rsvp_event'),
 ]

@@ -12,6 +12,7 @@ from django.contrib.auth.views import LoginView
 from django.views.generic import  UpdateView
 from django.contrib.auth import get_user_model
 from events.models import Event, Category
+from users.signals import rsvp_signal  
 
 
 
@@ -275,3 +276,20 @@ def remove_participant(request, event_id, user_id):
         messages.error(request, "This user is not a participant of this event.")
 
     return redirect('admin-dashboard')
+
+
+@login_required()
+def rsvp_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    user = request.user
+    
+    if user in event.participants.all():
+        messages.error(request, "Cannot RSVP more than once for the same event.")
+    else:
+        event.participants.add(user)
+        rsvp_signal.send(sender=Event, user=user, event=event)
+        
+        # Show success message
+        messages.success(request, "You have successfully RSVP'd to the event.")
+
+    return redirect('home')

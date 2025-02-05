@@ -5,6 +5,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
+from events.models import Event
+from django.db.models.signals import Signal
 
 User = get_user_model()
 
@@ -37,3 +39,17 @@ def assign_role(sender, instance, created, **kwargs):
         instance.save()
 
 
+
+rsvp_signal = Signal()
+
+@receiver(rsvp_signal)
+def send_rsvp_email(sender, user, event, **kwargs):
+    # Send email to the user upon RSVP
+    subject = f"RSVP Confirmation for {event.name}"
+    message = f"Dear {user.username},\n\nYou have successfully RSVP'd for the event: {event.name}.\nDetails:\nDate: {event.date}\nTime: {event.time}\nLocation: {event.location}\n\nThank you for your participation!"
+    recipient_list = [user.email]
+
+    try:
+        send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
+    except Exception as e:
+        print(f"Failed to send email to {user.email}: {str(e)}")
