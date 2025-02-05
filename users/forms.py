@@ -5,6 +5,7 @@ from django.contrib.auth.models import Permission, Group
 from django.contrib.auth.forms import AuthenticationForm
 from users.models import CustomUser
 from django.contrib.auth import get_user_model
+from events.models import Event
 
 User = get_user_model()
 
@@ -144,3 +145,18 @@ class CreateGroupForm(forms.ModelForm):
         fields = ['name', 'permissions']
 
 
+
+
+class AddParticipantForm(forms.ModelForm):
+    participants = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=forms.CheckboxSelectMultiple(attrs={
+            'class': 'border border-gray-300 rounded-lg p-4 bg-white'
+        }),
+        required=True,
+        label="Select Participants"
+    )
+
+    class Meta:
+        model = Event
+        fields = ['participants']

@@ -1,10 +1,13 @@
-from django.shortcuts import render, redirect, HttpResponse
-from events.forms import CategoryForm, EventForm, ParticipantForm
-from events.models import Event, Category, Participant
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Count, Q
+from django.utils.timezone import now
+from django.contrib.auth.models import User
 from django.contrib import messages
-from django.db.models import Count, Sum, Q
-from django.utils.timezone import now, timedelta
+from events.models import Event, Category
+from events.forms import EventForm, CategoryForm
+from django.contrib.auth import get_user_model
 
+# 📌 Dashboard View
 def Dashboard(request):
     current_date = now().date()
 
@@ -15,28 +18,39 @@ def Dashboard(request):
         past_events=Count('id', filter=Q(date__lt=current_date)),
     )
 
-
     event_type = request.GET.get('type', 'today')  
     event_name = "Today’s Events"
 
-    # Events filtered based on type
-    if event_type == 'upcoming':
-        event_name = "Upcoming Events"
-        events = Event.objects.filter(date__gt=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
-    elif event_type == 'past':
-        event_name = "Past Events"
-        events = Event.objects.filter(date__lt=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
-    elif event_type == 'today':
-        event_name = "Today’s Events"
-        events = Event.objects.filter(date=current_date).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
-    else:  # 'all' or any other value
-        event_name = "Total Events"
-        events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
+    event_filters = {
+        'today': Q(date=current_date),
+        'upcoming': Q(date__gt=current_date),
+        'past': Q(date__lt=current_date),
+    }
+
+    event_name_map = {
+        'today': "Today’s Events",
+        'upcoming': "Upcoming Events",
+        'past': "Past Events",
+        'all': "Total Events"
+    }
+
+    events = Event.objects.select_related('category').prefetch_related('participants').annotate(
+        total_participants=Count('participants', distinct=True)
+    )
+
+    if event_type in event_filters:
+        events = events.filter(event_filters[event_type])
+    
+    event_name = event_name_map.get(event_type, "Total Events")
 
     categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
-    participants = Participant.objects.annotate(total_events=Count('events')).order_by('-id')
+
+    # Get the correct User model dynamically
+    User = get_user_model()  # This fetches either `auth.User` or your custom user model
     
-    print(events)
+    # Get participants (custom user model or default User model)
+    participants = User.objects.annotate(total_events=Count('events')).order_by('-id')  
+
     context = {
         'counts': counts,
         'events': events,
@@ -47,24 +61,19 @@ def Dashboard(request):
     }
     return render(request, 'dashboard/dashboard.html', context)
 
-
-# Home view
+# 📌 Home View
 def home(request):
     search = request.GET.get('search')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     category = request.GET.get('category')
 
-    # Start with a base queryset
-    events = Event.objects.select_related('category').annotate(
-        total_participants=Count('participants', distinct=True)  # Optimize participant count
+    events = Event.objects.select_related('category').prefetch_related('participants').annotate(
+        total_participants=Count('participants', distinct=True)
     )
 
-  
     if search:
-        events = events.filter(
-            Q(name__icontains=search) | Q(location__icontains=search)
-        )
+        events = events.filter(Q(name__icontains=search) | Q(location__icontains=search))
 
     if start_date:
         events = events.filter(date__gte=start_date)
@@ -77,38 +86,20 @@ def home(request):
 
     categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
 
-    # Prepare context
+    participants_dict = {
+        event.id: event.participants.all() for event in events
+    }
+
     context = {
         'events': events,
         'categories': categories,
-        'participants': [],  # Adjust based on additional participant handling
+        'participants_dict': participants_dict,
     }
 
     return render(request, 'events/events.html', context)
-# def home(request):
-#     search = request.GET.get('search')
-#     start_date = request.GET.get('start_date')
-#     end_date = request.GET.get('end_date')
-#     category = request.GET.get('category')
-
-#     if search:
-#         events = Event.objects.filter(
-#             Q(name__icontains=search) | Q(location__icontains=search)
-#         ).select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
-#     else:
-#         events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
-
-#     categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
-#     # Prepare context
-#     context = {
-#         'events': events,
-#         'categories': categories,
-#         'participants': [],
-#     }
-#     return render(request, 'events/events.html', context)  
 
 
-# Create event view
+# 📌 Create Event
 def create_event(request):
     if request.method == 'POST':
         form = EventForm(request.POST)
@@ -120,11 +111,9 @@ def create_event(request):
     return render(request, 'events/event_form.html', {'form': form, 'title': 'Create Event', 'button_text': 'Create'})
 
 
-
-# event update view
+# 📌 Update Event
 def event_update(request, id):
-    
-    event = Event.objects.get(id=id)
+    event = get_object_or_404(Event, id=id)
     if request.method == 'POST':
         form = EventForm(request.POST, instance=event)
         if form.is_valid():
@@ -137,42 +126,33 @@ def event_update(request, id):
     return render(request, 'events/event_form.html', {'form': form, 'title': 'Update Event', 'button_text': 'Update'})
 
 
-# Event delete view
+# 📌 Delete Event
 def event_delete(request, id):
-    event = Event.objects.get(id=id)
+    event = get_object_or_404(Event, id=id)
     event.delete()
     messages.success(request, 'Event deleted successfully!')
     return redirect('events')
 
 
-
-
-# Event details view
+# 📌 Event Details
 def EventDetails(request, id):
-    event =  Event.objects.select_related('category').prefetch_related('participants').get(id=id)
-    print(event.participants.all())
+    event = get_object_or_404(Event.objects.select_related('category').prefetch_related('participants'), id=id)
 
-    if not event:
-        return HttpResponse('Event not found')
-    else:
-        context = {
-            'event': event,
-            'category': event.category,
-            'participants': event.participants.all(),
-        }
-        return render(request, 'events/event-details.html', context)
+    context = {
+        'event': event,
+        'category': event.category,
+        'participants': event.participants.all(),
+    }
+    return render(request, 'events/event-details.html', context)
 
 
-
-
-# Category views
+# 📌 Show Categories
 def Show_Categories(request):
     categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
-
     return render(request, 'category/categories.html', {'categories': categories})
 
 
-# Category views
+# 📌 Create Category
 def create_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
@@ -184,75 +164,65 @@ def create_category(request):
     return render(request, 'category/category_form.html', {'category_form': form, 'title': 'Create Category', 'button_text': 'Create'})
 
 
-# Category update view
+# 📌 Update Category
 def category_update(request, id):
-    
-    category = Category.objects.get(id=id)
+    category = get_object_or_404(Category, id=id)
     if request.method == 'POST':
         form = CategoryForm(request.POST, instance=category)
         if form.is_valid():
             form.save()
             messages.success(request, 'Category updated successfully!')
-            return redirect('categories')  # Assuming you have a detail view
+            return redirect('categories')  
     else:
         form = CategoryForm(instance=category)
 
     return render(request, 'category/category_form.html', {'category_form': form, 'title': 'Update Category', 'button_text': 'Update'})
 
 
-
-# Category delete view
+# 📌 Delete Category
 def category_delete(request, id):
-    category = Category.objects.get(id=id)
+    category = get_object_or_404(Category, id=id)
     category.delete()
     messages.success(request, 'Category deleted successfully!')
     return redirect('categories')
 
 
-
-
+# 📌 Show Participants (Users now)
 def Show_Participants(request):
-    participants = Participant.objects.annotate(total_events=Count('events')).order_by('-id')
+    participants = User.objects.annotate(total_events=Count('events')).order_by('-id')  # ✅ Fix: Use User model
     return render(request, 'participant/participants.html', {'participants': participants})
 
 
-
-# Participant views
+# 📌 Create Participant (User)
 def create_participant(request):
     if request.method == 'POST':
-        form = ParticipantForm(request.POST)
+        form = UserCreationForm(request.POST)  # ✅ Fix: Use Django's User form
         if form.is_valid():
             form.save()
             return redirect('participants')
     else:
-        form = ParticipantForm()
-    return render(request, 'participant/participant_form.html', {'form': form, 'title': 'Create Participant', 'button_text': 'Create'})
+        form = UserCreationForm()
+    return render(request, 'participant/participant_form.html', {'form': form, 'title': 'Create User', 'button_text': 'Create'})
 
 
-# Participant update view
+# 📌 Update Participant (User)
 def participant_update(request, id):
-    
-    participant = Participant.objects.get(id=id)
+    participant = get_object_or_404(User, id=id)
     if request.method == 'POST':
-        form = ParticipantForm(request.POST, instance=participant)
+        form = UserChangeForm(request.POST, instance=participant)  # ✅ Fix: Use User form
         if form.is_valid():
             form.save()
-            messages.success(request, 'Participant updated successfully!')
+            messages.success(request, 'User updated successfully!')
             return redirect('participants')  
     else:
-        form = ParticipantForm(instance=participant)
+        form = UserChangeForm(instance=participant)
 
-    return render(request, 'participant/participant_form.html', {'form': form, 'title': 'Update Participant', 'button_text': 'Update'})
+    return render(request, 'participant/participant_form.html', {'form': form, 'title': 'Update User', 'button_text': 'Update'})
 
 
-
-# Category delete view
+# 📌 Delete Participant (User)
 def participant_delete(request, id):
-    participant = Participant.objects.get(id=id)
+    participant = get_object_or_404(User, id=id)
     participant.delete()
-    messages.success(request, 'Participant deleted successfully!')
+    messages.success(request, 'User deleted successfully!')
     return redirect('participants')
-
-
-
-
