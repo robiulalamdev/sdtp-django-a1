@@ -66,6 +66,12 @@
                     </div>
              
                 </div>
+                <form action="{% url 'rsvp_event' event.id %}" method="post" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        RSVP
+                    </button>
+                </form>
               
             </div>
         </div>

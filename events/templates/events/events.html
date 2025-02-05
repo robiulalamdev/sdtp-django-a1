@@ -4,6 +4,23 @@
 
 {% block events %}
 
+<div class="mx-auto">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="px-2 py-1 text-center 
+                    {% if message.tags == 'success' %}
+                        bg-green-500
+                    {% elif message.tags == 'error' %}
+                        bg-red-500
+                    {% endif %}
+                    text-white">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
 <div class="relative">
     <!-- Banner Image -->
     <div class="w-full h-[400px] relative">
@@ -138,17 +155,19 @@
                 <div class="flex justify-between items-center flex-wrap gap-3 w-full mt-6">
                     <h1>Total Participants : {{event.total_participants}}</h1>
 
-                    <form action="{% url 'rsvp_event' event.id %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                            RSVP
-                        </button>
-                    </form>
-                    <a href="{% url "event-details" event.id %}">
-                        <button class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105">
-                            Read more
-                        </button>
-                      </a>
+                    <div class="flex flex-wrap gap-3">
+                        <form action="{% url 'rsvp_event' event.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                RSVP
+                            </button>
+                        </form>
+                        <a href="{% url "event-details" event.id %}">
+                            <button class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105">
+                                Read more
+                            </button>
+                          </a>
+                    </div>
                 </div>
               
             </div>

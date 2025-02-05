@@ -285,11 +285,11 @@ def rsvp_event(request, event_id):
     
     if user in event.participants.all():
         messages.error(request, "Cannot RSVP more than once for the same event.")
+        return redirect('events')
     else:
         event.participants.add(user)
         rsvp_signal.send(sender=Event, user=user, event=event)
         
         # Show success message
         messages.success(request, "You have successfully RSVP'd to the event.")
-
-    return redirect('home')
+        return redirect('events')
