@@ -106,12 +106,14 @@ def home(request):
 @user_passes_test(is_organizer_or_admin, login_url='permission_denied')
 def create_event(request):
     if request.method == 'POST':
-        form = EventForm(request.POST)
+        print("FILES: ",request.FILES)
+        form = EventForm(request.POST, request.FILES) 
         if form.is_valid():
-            form.save()
+            form.save() 
             return redirect('home')  
     else:
         form = EventForm()
+
     return render(request, 'events/event_form.html', {'form': form, 'title': 'Create Event', 'button_text': 'Create'})
 
 

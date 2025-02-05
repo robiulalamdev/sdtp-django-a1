@@ -62,11 +62,11 @@ def sign_in(request):
             login(request, user)
 
             if user.groups.filter(name='Admin').exists():
-                return redirect('admin_dashboard') 
+                return redirect('admin-dashboard') 
             elif user.groups.filter(name='Organizer').exists():
-                return redirect('organizer_dashboard') 
+                return redirect('organizer-dashboard') 
             elif user.groups.filter(name='Participant').exists():
-                return redirect('participant_dashboard') 
+                return redirect('participant-dashboard') 
             else:
                 return redirect('home') 
             
@@ -168,7 +168,10 @@ def organizer_dashboard(request):
 @login_required
 @user_passes_test(is_participant, login_url='permission_denied')
 def participant_dashboard(request):
-    events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
+    # events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
+    user = request.user
+    events = Event.objects.filter(participants=user)  
+    
     context = {
         'events':events,
     }

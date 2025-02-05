@@ -26,7 +26,7 @@ class CategoryForm(forms.ModelForm):
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['name', 'description', 'date', 'time', 'location', 'category']
+        fields = ['name', 'description', 'date', 'time', 'location', 'category', 'image']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500',
