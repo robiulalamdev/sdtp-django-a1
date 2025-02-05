@@ -1,0 +1,242 @@
+{% extends "main.html" %}
+
+{% block Admin_dashboard %}
+
+<div class="container mx-auto px-4 py-8">
+    {% include "dashboard_statastics.html" %}
+    <ul>
+        {% for message in messages %}
+            <li class="bg-green-500 text-white px-1 py-2">{{message}}</li>
+        {% endfor %}
+    </ul>
+    <h1 class="text-4xl font-extrabold text-purple-800">Users list</h1>
+    
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg mt-4">
+        <table class="w-full leading-normal min-w-[1000px]">
+            <thead>
+                <tr>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Username
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Status
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Date
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Role
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center">
+                                    <span class="text-lg font-semibold uppercase">
+                                        {{ user.username | slice:'0:2' }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <h1
+                                    class="text-gray-900 font-bold text-sm truncate">
+                                        {{ user.username }}
+                                    </h1>
+                                    <p class="text-gray-900 whitespace-no-wrap">{{ user.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 text-sm">
+                            <p class="text-gray-900 whitespace-no-wrap text-sm px-[12px] py-[4px] inline-block rounded-full text-center {% if user.is_active %} bg-green-100 {% else %} bg-red-100 {% endif %}">
+                                {% if user.is_active %}
+                                    Active
+                                {% else %}
+                                    Deactive
+                                {% endif %}
+                            </p>
+                       </td>
+                    
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900 whitespace-no-wrap">{{ user.date_joined }}</p>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <span
+                                class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+                                <span aria-hidden
+                                    class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
+                                <span class="relative">{{ user.group_name | default:"Participant" }}</span>
+                            </span>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'assign-role' user.id %}" class="text-blue-600 hover:text-blue-900">
+                                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                        Change role
+                                    </button>
+                                </a>      
+                                <form action="{% url 'delete-user' user.id %}" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                        Delete
+                                    </button>
+                                </form> 
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                            <p class="text-2xl text-gray-500 font-semibold">Data not found.</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-extrabold text-purple-800">Groups</h1>
+      <a href="/users/admin/create-group">
+        <button class="px-[12px] py-[8px] bg-black text-white shadow rounded-md text-sm">Create Group</button>
+      </a>
+    </div>
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+        <table class="min-w-full leading-normal">
+            <thead>
+                <tr>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Name
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Total Users
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                <tr>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <p class="text-gray-900 whitespace-no-wrap">{{ group.name }}</p>
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <p class="text-gray-900 whitespace-no-wrap">{{ group.total_users }}</p>
+                    </td>
+                    
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <form action="{% url 'delete-group' group.id %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                Delete
+                            </button>
+                        </form> 
+                    </td>
+                    
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                        <p class="text-2xl text-gray-500 font-semibold">Data not found.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% include "event_list.html" %}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-4xl font-extrabold text-purple-800">Event Participants</h1>
+    </div>
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg mt-4">
+        <table class="w-full leading-normal min-w-[1000px]">
+            <thead>
+                <tr>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Username
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Event Name
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Status
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for participant in participants %}
+                    <tr>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center">
+                                    <span class="text-lg font-semibold uppercase">
+                                        {{ participant.username | slice:'0:2' }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <h1
+                                    class="text-gray-900 font-bold text-sm truncate">
+                                        {{ participant.username }}
+                                    </h1>
+                                    <p class="text-gray-900 whitespace-no-wrap">{{ participant.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 text-sm">
+                            <p class="text-gray-900 text-sm inline-block rounded-full">
+                               {{ participant.events__name }}
+                            </p>
+                       </td>
+                        <td class="px-5 py-5 border-b border-gray-200 text-sm">
+                            <p class="text-gray-900 whitespace-no-wrap text-sm px-[12px] py-[4px] inline-block rounded-full text-center {% if participant.is_active %} bg-green-100 {% else %} bg-red-100 {% endif %}">
+                                {% if participant.is_active %}
+                                    Active
+                                {% else %}
+                                    Deactive
+                                {% endif %}
+                            </p>
+                       </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex space-x-2">     
+                                <form action="{% url 'delete-participant' participant.events__id participant.id %}" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                        Delete
+                                    </button>
+                                </form> 
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                            <p class="text-2xl text-gray-500 font-semibold">Data not found.</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% include "category_table.html" %}
+
+{% endblock Admin_dashboard %}

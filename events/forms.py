@@ -1,5 +1,5 @@
 from django import forms
-from events.models import Category, Event, Participant
+from events.models import Category, Event
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -26,7 +26,7 @@ class CategoryForm(forms.ModelForm):
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['name', 'description', 'date', 'time', 'location', 'category']
+        fields = ['name', 'description', 'date', 'time', 'location', 'category', 'image']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500',
@@ -54,20 +54,3 @@ class EventForm(forms.ModelForm):
             }),
         }
 
-class ParticipantForm(forms.ModelForm):
-    class Meta:
-        model = Participant
-        fields = ['name', 'email', 'events']
-        widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
-                'placeholder': 'Enter participant name',
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
-                'placeholder': 'Enter participant email',
-            }),
-            'events': forms.CheckboxSelectMultiple(attrs={
-                'class': 'px-4 py-2 border border-gray-300 rounded-lg shadow-sm mb-2',
-            }),
-        }

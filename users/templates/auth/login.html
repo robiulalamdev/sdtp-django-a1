@@ -1,0 +1,27 @@
+{% extends "main.html" %}
+
+{% block login %}
+
+<div class="container mx-auto px-4 py-8">
+    <form method="POST" class="mx-auto bg-white p-8 rounded-md shadow-md" style="max-width: 500px;" >
+        {% if messages %}
+            {% for message in messages %}
+                <div class="px-2 py-1 {% if message.tags == 'success' %}bg-green-500{% endif %} ">{{message}}</div>
+            {% endfor %}
+        {% endif %}
+        <h1 class="text-2xl font-bold mb-5 text-center text-black">{{ title }}</h1>
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit" class="mb-5 bg-rose-600 px-5 py-2 text-white mt-2 rounded-md">
+            {{ button_text }}
+        </button>
+
+
+        <h1 class="text-black">You don't have an account? <a href="/users/sign-up/"
+            class="text-blue-600 font-semibold"
+            >Register</a> </h1>
+    </form>
+</div>
+
+
+{% endblock login %}

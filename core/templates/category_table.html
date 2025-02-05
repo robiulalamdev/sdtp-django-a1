@@ -1,0 +1,77 @@
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between mb-4">
+      <h2 class="text-center font-bold text-2xl md:text-4xl text-black">
+          Categories
+      </h2>
+        <a href="/categories/create">
+            <button class="px-4 py-2 bg-black text-white shadow rounded-md text-sm hover:bg-gray-800 transition duration-300">Create Category</button>
+        </a>
+    </div>
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+        <table class="min-w-full leading-normal">
+            <thead>
+                <tr>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Category
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Description
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Total Events
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center">
+                                <span class="font-bold text-lg">{{ category.name|slice:":2" }}</span>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-gray-900 whitespace-no-wrap font-semibold">
+                                    {{ category.name }}
+                                </p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <p class="text-gray-900 whitespace-no-wrap">{{ category.description|truncatechars:100 }}</p>
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <p class="text-gray-900 whitespace-no-wrap font-semibold">{{ category.total_events }}</p>
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'update-category' category.id %}" class="text-yellow-600 hover:text-yellow-900">
+                                <button class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded transition duration-300">
+                                    Edit
+                                </button>
+                            </a>
+                            <form action="{% url 'delete-category' category.id %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                        <p class="text-2xl text-gray-500 font-semibold">No categories found.</p>
+                        <p class="text-gray-400 mt-2">Create a new category to get started!</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+

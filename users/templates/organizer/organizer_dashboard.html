@@ -1,0 +1,11 @@
+{% extends "main.html" %}
+
+{% block Admin_dashboard %}
+
+    <div class="container mx-auto px-4 py-8">
+        {% include "dashboard_statastics.html" %}
+    </div>
+    {% include "event_list.html" %}
+    {% include "category_table.html" %}
+
+{% endblock Admin_dashboard %}
