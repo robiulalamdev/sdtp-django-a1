@@ -1,0 +1,73 @@
+<div class="container mx-auto mb-7">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 p-6 bg-gray-50 rounded-xl shadow-md">
+      <!-- Total Events -->
+      <a href="?type=all">
+        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 shadow-md">
+          <h3 class="text-white text-sm font-medium mb-4">TOTAL EVENTS</h3>
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-4xl font-bold text-white mb-1">{{ counts.total_events }}</p>
+              <p class="text-green-200 text-xs">+15 compared to last month</p>
+            </div>
+            <div class="bg-white p-3 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-green-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0h4.5m-4.5 0H7.5m8.25-2.25a9 9 0 1 1-16.5 4.5 9 9 0 0 1 16.5-4.5Z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Total Participants -->
+      <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg p-6 shadow-md">
+        <h3 class="text-white text-sm font-medium mb-4">TOTAL PARTICIPANTS</h3>
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-4xl font-bold text-white mb-1">{{ counts.total_participants }}</p>
+            <p class="text-yellow-200 text-xs">+50 joined this month</p>
+          </div>
+          <div class="bg-white p-3 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-yellow-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0h4.5m-4.5 0H7.5m8.25-2.25a9 9 0 1 1-16.5 4.5 9 9 0 0 1 16.5-4.5Z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Events -->
+      <a href="?type=upcoming">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 shadow-md">
+          <h3 class="text-white text-sm font-medium mb-4">UPCOMING EVENTS</h3>
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-4xl font-bold text-white mb-1">{{ counts.upcoming_events }}</p>
+              <p class="text-blue-200 text-xs">+10 planned for next week</p>
+            </div>
+            <div class="bg-white p-3 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75a9 9 0 1 1-12.75 8.5m4.5 0h8.25M12 7.5v3.75" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Past Events -->
+      <a href="?type=past">
+        <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-6 shadow-md">
+          <h3 class="text-white text-sm font-medium mb-4">PAST EVENTS</h3>
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-4xl font-bold text-white mb-1">{{ counts.past_events }}</p>
+              <p class="text-red-200 text-xs">-5 compared to last month</p>
+            </div>
+            <div class="bg-white p-3 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-red-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75a9 9 0 1 1-12.75 8.5m4.5 0h8.25M12 7.5v3.75" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>

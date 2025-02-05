@@ -59,7 +59,16 @@ def sign_in(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('home')
+
+            if user.groups.filter(name='Admin').exists():
+                return redirect('admin_dashboard') 
+            elif user.groups.filter(name='Organizer').exists():
+                return redirect('organizer_dashboard') 
+            elif user.groups.filter(name='Participant').exists():
+                return redirect('participant_dashboard') 
+            else:
+                return redirect('home') 
+            
     return render(request, 'auth/login.html', {'form': form, "button_text": "Login", "title": "Login"})
 
 
@@ -96,6 +105,13 @@ def activate_user(request, user_id, token):
 
 @user_passes_test(is_admin, login_url='permission_denied')
 def admin_dashboard(request):
+    counts = Event.objects.aggregate(
+        total_events=Count('id', distinct=True),
+        total_participants=Count('participants', distinct=True),
+        upcoming_events=Count('id', distinct=True),
+        past_events=Count('id'),
+    )
+
     users = User.objects.prefetch_related(
         Prefetch('groups', queryset=Group.objects.all(), to_attr='all_groups')
     ).all()
@@ -116,6 +132,7 @@ def admin_dashboard(request):
             user.group_name = 'No Assigned'
 
     context = {
+        'counts': counts,
         "users": users, 
         'events':events, 
         'groups': groups, 
@@ -129,10 +146,17 @@ def admin_dashboard(request):
 # ORGANIGER
 @user_passes_test(is_organizer, login_url='permission_denied')
 def organizer_dashboard(request):
+    counts = Event.objects.aggregate(
+        total_events=Count('id', distinct=True),
+        total_participants=Count('participants', distinct=True),
+        upcoming_events=Count('id', distinct=True),
+        past_events=Count('id'),
+    )
     events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
     categories = Category.objects.annotate(total_events=Count('events')).order_by('-id')
 
     context = {
+        'counts': counts,
         'events':events, 
         'categories': categories
     }
