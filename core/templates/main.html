@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EventSphere - Event Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -28,21 +29,37 @@
                     <a href="/">
                         <img src="https://lakemacfamilylife.com.au/wp-content/uploads/2024/09/event-cinemas-glendale-main.jpg" alt="Logo" class="max-w-[100px] object-contain mr-2">
                     </a>
-            
                 </div>
     
                 <!-- Navigation for larger screens -->
-                <nav class="hidden md:flex space-x-4">
+                <nav class="hidden md:flex space-x-4 items-center">
                     <a href="/" class="hover:text-blue-200 transition">Home</a>
-                    <a href="/dashboard" class="hover:text-blue-200 transition">Dashboard</a>
                     <a href="/events" class="hover:text-blue-200 transition">Events</a>
-                    <a href="/participants" class="hover:text-blue-200 transition">Participants</a>
                     <a href="/categories" class="hover:text-blue-200 transition">Categories</a>
+                    {% if request.user.is_authenticated %}
+                        {% include "profile_manu.html" %}
+                    {% else %}
+                        <a href="/users/sign-in/">
+                            <button class="px-[16px] py-[4px] text-sm bg-blue-600 text-white rounded-sm">
+                                Login
+                            </button>
+                        </a>
+                        {% comment %} {% include "non_logged_nav.html" %} {% endcomment %}
+                    {% endif %}
                 </nav>
-    
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" class="text-white focus:outline-none">
+                <div class="md:hidden flex gap-2">
+                                <!-- Mobile menu button -->
+                                {% if request.user.is_authenticated %}
+                                    {% include "profile_manu.html" %}
+                                {% else %}
+                                    <a href="/users/sign-in/">
+                                        <button class="px-[16px] py-[4px] text-sm bg-blue-600 text-white rounded-sm">
+                                            Login
+                                        </button>
+                                    </a>
+                                    {% comment %} {% include "non_logged_nav.html" %} {% endcomment %}
+                                {% endif %}
+                    <button id="mobile-menu-button" class="text-white focus:outline-none flex justify-center items-center">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                         </svg>
@@ -55,24 +72,17 @@
                 <a href="/" class="block py-2 hover:text-blue-200 transition">Home</a>
                 <a href="/dashboard" class="block py-2 hover:text-blue-200 transition">Dashboard</a>
                 <a href="/events" class="block py-2 hover:text-blue-200 transition">Events</a>
-                <a href="/participants" class="block py-2 hover:text-blue-200 transition">Participants</a>
                 <a href="/categories" class="block py-2 hover:text-blue-200 transition">Categories</a>
             </div>
         </div>
     </header>
     <main>
-
-        {% block dashboard %}{% endblock dashboard %}
-        
-       {% block events %}{% endblock events %}
-       {% block event_details %}{% endblock event_details %}
-       {% block event_form %}{% endblock event_form %}
-
-       {% block categories %}{% endblock categories %}
-       {% block category_form %}{% endblock category_form %}
-
-       {% block Participants %}{% endblock Participants %}
-       {% block participant_form %}{% endblock participant_form %}
+        {% block home %}{% endblock home %}
+        {% block sign_up %}{% endblock sign_up %}
+        {% block login %}{% endblock login %}
+        {% block Admin_dashboard %}{% endblock Admin_dashboard %}
+        {% block Create_group %}{% endblock Create_group %}
+        {% block Assign_role %}{% endblock Assign_role %}
     </main>
 
     <script>
@@ -83,6 +93,23 @@
         mobileMenuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
+
+        const profileButton = document.getElementById('profileButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        profileButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('hidden');
+            dropdownMenu.classList.toggle('opacity-0');
+            dropdownMenu.classList.toggle('scale-95');
+        });
+
+        // Close the dropdown when clicking outside
+        window.addEventListener('click', (event) => {
+            if (!profileButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add('hidden', 'opacity-0', 'scale-95');
+            }
+        });
     </script>
 </body>
 </html>
+
