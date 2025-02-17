@@ -1,15 +1,15 @@
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib.auth.models import Group
 from django.contrib.auth import login, logout
-from users.forms import CustomRegistrationForm, AssignRoleForm, CreateGroupForm, AddParticipantForm
-from django.contrib import messages
+from users.forms import CustomRegistrationForm, AssignRoleForm, CreateGroupForm, AddParticipantForm, CustomPasswordChangeForm, CustomPasswordResetForm, CustomPasswordResetConfirmForm, EditProfileForm
 from django.contrib import messages
 from users.forms import LoginForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Prefetch, Count, Sum, Q
-from django.contrib.auth.views import LoginView
-from django.views.generic import  UpdateView
+from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView, PasswordResetConfirmView
+from django.views.generic import  TemplateView, UpdateView
+from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
 from events.models import Event, Category
 from users.signals import rsvp_signal  
@@ -190,8 +190,7 @@ def assign_role(request, user_id):
             role = form.cleaned_data.get('role')
             user.groups.clear()  # Remove old roles
             user.groups.add(role)
-            messages.success(request, f"User {
-                             user.username} has been assigned to the {role.name} role")
+            messages.success(request, f"User {user.username} has been assigned to the {role.name} role")
             return redirect('admin-dashboard')
 
     return render(request, 'dashboard/assign_role.html', {"form": form})
@@ -206,8 +205,7 @@ def create_group(request):
 
         if form.is_valid():
             group = form.save()
-            messages.success(request, f"Group {
-                             group.name} has been created successfully")
+            messages.success(request, f"Group {group.name} has been created successfully")
             return redirect('create-group')
 
     return render(request, 'dashboard/create_group.html', {'form': form})
@@ -296,3 +294,54 @@ def rsvp_event(request, event_id):
         # Show success message
         messages.success(request, "You have successfully RSVP'd to the event.")
         return redirect('events')
+
+
+
+
+class ProfileView(TemplateView):
+    template_name = 'accounts/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        context['username'] = user.username
+        context['email'] = user.email
+        context['name'] = user.get_full_name()
+        context['phone_number'] = user.phone_number
+        context['profile_image'] = user.profile_image
+
+        context['member_since'] = user.date_joined
+        context['last_login'] = user.last_login
+        return context
+
+
+class CustomPasswordResetView(PasswordResetView):
+    form_class = CustomPasswordResetForm
+    template_name = 'registration/reset_password.html'
+    success_url = reverse_lazy('sign-in')
+    html_email_template_name = 'registration/reset_email.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['protocol'] = 'https' if self.request.is_secure() else 'http'
+        context['domain'] = self.request.get_host()
+        print(context)
+        return context
+
+    def form_valid(self, form):
+        messages.success(
+            self.request, 'A Reset email sent. Please check your email')
+        return super().form_valid(form)
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    form_class = CustomPasswordResetConfirmForm
+    template_name = 'registration/reset_password.html'
+    success_url = reverse_lazy('sign-in')
+
+    def form_valid(self, form):
+        messages.success(
+            self.request, 'Password reset successfully')
+        return super().form_valid(form)
+

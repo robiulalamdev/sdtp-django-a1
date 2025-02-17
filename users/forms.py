@@ -2,7 +2,7 @@ from django import forms
 import re
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Permission, Group
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from users.models import CustomUser
 from django.contrib.auth import get_user_model
 from events.models import Event
@@ -160,3 +160,22 @@ class AddParticipantForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = ['participants']
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    pass
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    pass
+
+
+class CustomPasswordResetConfirmForm(SetPasswordForm):
+    pass
+
+
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'first_name', 'last_name', 'profile_image', 'phone_number']

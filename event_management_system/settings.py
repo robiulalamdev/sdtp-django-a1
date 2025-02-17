@@ -95,7 +95,7 @@ DATABASES = {
 
 # DATABASES = {
 #     'default': dj_database_url.config(
-#         default='postgresql://event_management_system_cyow_user:OR3kFayTxFkoBekkttFnCBjdk0izBijI@dpg-cu9je7tds78s739egfs0-a.oregon-postgres.render.com/event_management_system_cyow',
+#         default=config('DATABASE_URL'),
 #         conn_max_age=600
 #     )
 # }
@@ -159,7 +159,7 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 
-FRONTEND_URL = 'http://127.0.0.1:8000'
+FRONTEND_URL = config('FRONTEND_URL')
 
 LOGIN_URL = '/users/sign-in/'
 LOGIN_REDIRECT_URL = '/tasks/dashboard/'
