@@ -53,7 +53,7 @@ def sign_up(request):
     form = CustomRegistrationForm()
     
     if request.method == 'POST':
-        form = CustomRegistrationForm(request.POST) 
+        form = CustomRegistrationForm(request.POST, request.FILES) 
 
         if form.is_valid():
             user = form.save(commit=False)
@@ -68,6 +68,7 @@ def sign_up(request):
             print("Form is not valid", form.errors) 
 
     return render(request, 'registration/sign_up.html', {"form": form, "button_text": "Register", "title":"Create an account"})
+
 
 def sign_in(request):
     form = LoginForm()

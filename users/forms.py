@@ -32,10 +32,13 @@ class CustomRegistrationForm(forms.ModelForm):
         })
     )
 
+    # profile_image = forms.ImageField(upload_to='profile_images', blank=True, default='profile_images/default.png')
+    # phone_number = forms.TextInput(blank=True)
+
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name',
-                  'password', 'confirm_password', 'email']
+                  'password', 'confirm_password', 'email', 'phone_number', 'profile_image']
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
@@ -48,7 +51,11 @@ class CustomRegistrationForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={
                 'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
                 'placeholder': 'Enter last name',
-            })
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
+                'placeholder': 'Enter phone number',
+            }),
         }
 
     def clean_email(self):
