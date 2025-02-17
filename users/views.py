@@ -190,8 +190,7 @@ def assign_role(request, user_id):
             role = form.cleaned_data.get('role')
             user.groups.clear()  # Remove old roles
             user.groups.add(role)
-            messages.success(request, f"User {
-                             user.username} has been assigned to the {role.name} role")
+            messages.success(request, f"User {user.username} has been assigned to the {role.name} role")
             return redirect('admin-dashboard')
 
     return render(request, 'dashboard/assign_role.html', {"form": form})
@@ -206,8 +205,7 @@ def create_group(request):
 
         if form.is_valid():
             group = form.save()
-            messages.success(request, f"Group {
-                             group.name} has been created successfully")
+            messages.success(request, f"Group {group.name} has been created successfully")
             return redirect('create-group')
 
     return render(request, 'dashboard/create_group.html', {'form': form})
