@@ -67,7 +67,7 @@ def sign_up(request):
         else:
             print("Form is not valid", form.errors) 
 
-    return render(request, 'auth/sign_up.html', {"form": form, "button_text": "Register", "title":"Create an account"})
+    return render(request, 'registration/sign_up.html', {"form": form, "button_text": "Register", "title":"Create an account"})
 
 def sign_in(request):
     form = LoginForm()
@@ -86,16 +86,26 @@ def sign_in(request):
             else:
                 return redirect('home') 
             
-    return render(request, 'auth/login.html', {'form': form, "button_text": "Login", "title": "Login"})
+    return render(request, 'registration/login.html', {'form': form, "button_text": "Login", "title": "Login"})
+
+
 
 
 class CustomLoginView(LoginView):
     form_class = LoginForm
 
     def get_success_url(self):
-        next_url = self.request.GET.get('next')
-        return next_url if next_url else super().get_success_url()
+        user = self.request.user
 
+        if user.groups.filter(name='Admin').exists():
+            return reverse_lazy('admin-dashboard')
+        elif user.groups.filter(name='Organizer').exists():
+            return reverse_lazy('organizer-dashboard')
+        elif user.groups.filter(name='Participant').exists():
+            return reverse_lazy('participant-dashboard')
+        else:
+            return reverse_lazy('home')
+        
 
 class ChangePassword(PasswordChangeView):
     template_name = 'accounts/password_change.html'

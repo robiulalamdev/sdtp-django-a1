@@ -163,4 +163,4 @@ FRONTEND_URL = config('FRONTEND_URL')
 
 LOGIN_URL = '/users/sign-in/'
 LOGIN_REDIRECT_URL = '/tasks/dashboard/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/users/sign-in/'
