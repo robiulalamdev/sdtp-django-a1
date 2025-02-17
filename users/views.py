@@ -33,6 +33,22 @@ def is_organizer_or_admin(user):
     return user.groups.filter(name__in=['Organizer', 'Admin']).exists()
 
 
+class EditProfileView(UpdateView):
+    model = User
+    form_class = EditProfileForm
+    template_name = 'accounts/update_profile.html'
+    context_object_name = 'form'
+
+    def get_object(self):
+        return self.request.user
+
+    def form_valid(self, form):
+        form.save()
+        return redirect('profile')
+
+
+
+
 def sign_up(request):
     form = CustomRegistrationForm()
     
@@ -79,6 +95,12 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         next_url = self.request.GET.get('next')
         return next_url if next_url else super().get_success_url()
+
+
+class ChangePassword(PasswordChangeView):
+    template_name = 'accounts/password_change.html'
+    form_class = CustomPasswordChangeForm
+
 
 
 @login_required

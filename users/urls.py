@@ -1,6 +1,6 @@
 from django.urls import path
-from users.views import sign_up, sign_in, sign_out, activate_user, admin_dashboard, create_group, assign_role, delete_user, add_participants, delete_group, remove_participant, organizer_dashboard, participant_dashboard, rsvp_event
-from django.contrib.auth.views import LogoutView
+from users.views import sign_up, sign_in, sign_out, activate_user, admin_dashboard, create_group, assign_role, delete_user, add_participants, delete_group, remove_participant, organizer_dashboard, participant_dashboard, rsvp_event, CustomLoginView, ProfileView, ChangePassword, CustomPasswordResetView, CustomPasswordResetConfirmView, EditProfileView
+from django.contrib.auth.views import LogoutView, PasswordChangeDoneView
 
 
 urlpatterns = [
@@ -26,4 +26,14 @@ urlpatterns = [
 
     # others
     path('rsvp/<int:event_id>/', rsvp_event, name='rsvp_event'),
+
+
+    path('profile/', ProfileView.as_view(), name='profile'),
+    path('password-change/', ChangePassword.as_view(), name='password_change'),
+    path('password-change/done/', PasswordChangeDoneView.as_view(
+        template_name='accounts/password_change_done.html'), name='password_change_done'),
+    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/confirm/<uidb64>/<token>/',
+         CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('edit-profile/', EditProfileView.as_view(), name='edit_profile')
 ]
