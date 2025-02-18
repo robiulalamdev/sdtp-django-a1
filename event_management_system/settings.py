@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'event_management_system.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "event_management_system",
+        "NAME": "ems_db",
         "USER": "postgres",
         "PASSWORD": "762485",
         "HOST": "localhost",
@@ -163,4 +163,4 @@ FRONTEND_URL = config('FRONTEND_URL')
 
 LOGIN_URL = '/users/sign-in/'
 LOGIN_REDIRECT_URL = '/tasks/dashboard/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/users/sign-in/'

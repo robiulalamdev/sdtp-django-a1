@@ -1,6 +1,5 @@
 from django import forms
 import re
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Permission, Group
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from users.models import CustomUser
@@ -33,10 +32,11 @@ class CustomRegistrationForm(forms.ModelForm):
         })
     )
 
+
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name',
-                  'password', 'confirm_password', 'email']
+                  'password', 'confirm_password', 'email', 'phone_number', 'profile_image']
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
@@ -49,7 +49,11 @@ class CustomRegistrationForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={
                 'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
                 'placeholder': 'Enter last name',
-            })
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
+                'placeholder': 'Enter phone number',
+            }),
         }
 
     def clean_email(self):
