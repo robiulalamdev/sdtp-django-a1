@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,26 +8,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+Bengali:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static "css/output.css" %}">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+      body {
+        font-family: "Inter", sans-serif !important;
+      }
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
-                    },
-                    colors: {
-                        'custom-bg': '#dcdfe3',
-                    },
-                }
-            }
-        }
-    </script>
 </head>
 
-<body class="bg-[#dcdfe3] font-sans">
+<body class="bg-[#dcdfe3] !font-inter">
+    <header class="bg-black text-white">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between py-1">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/">
+                        <img src="https://lakemacfamilylife.com.au/wp-content/uploads/2024/09/event-cinemas-glendale-main.jpg" alt="Logo" class="max-w-[100px] object-contain mr-2">
+                    </a>
+                </div>
+    
+                <!-- Navigation for larger screens -->
+                <nav class="hidden md:flex space-x-4 items-center">
+                    <a href="/" class="hover:text-blue-200 transition">Home</a>
+                    <a href="/events" class="hover:text-blue-200 transition">Events</a>
+                    <a href="/categories" class="hover:text-blue-200 transition">Categories</a>
+                    {% if request.user.is_authenticated %}
+                        {% include "profile_manu.html" %}
+                    {% else %}
+                        <a href="/users/sign-in/">
+                            <button class="px-[16px] py-[4px] text-sm bg-blue-600 text-white rounded-sm">
+                                Login
+                            </button>
+                        </a>
+                        {% comment %} {% include "non_logged_nav.html" %} {% endcomment %}
+                    {% endif %}
+                </nav>
+                <div class="md:hidden flex gap-2">
+                                <!-- Mobile menu button -->
+                                {% if request.user.is_authenticated %}
+                                    {% include "profile_manu.html" %}
+                                {% else %}
+                                    <a href="/users/sign-in/">
+                                        <button class="px-[16px] py-[4px] text-sm bg-blue-600 text-white rounded-sm">
+                                            Login
+                                        </button>
+                                    </a>
+                                    {% comment %} {% include "non_logged_nav.html" %} {% endcomment %}
+                                {% endif %}
+                    <button id="mobile-menu-button" class="text-white focus:outline-none flex justify-center items-center">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+    
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden pb-4">
+                <a href="/" class="block py-2 hover:text-blue-200 transition">Home</a>
+                <a href="/dashboard" class="block py-2 hover:text-blue-200 transition">Dashboard</a>
+                <a href="/events" class="block py-2 hover:text-blue-200 transition">Events</a>
+                <a href="/categories" class="block py-2 hover:text-blue-200 transition">Categories</a>
+            </div>
+        </div>
+    </header>
     <div class="flex flex-col lg:flex-row min-h-screen">
         <!-- Sidebar -->
         <aside class="w-full lg:w-64 bg-white shadow-lg lg:fixed lg:h-full">
@@ -114,6 +166,32 @@
     <script>
         document.getElementById('menuToggle').addEventListener('click', function () {
             document.getElementById('sidebarMenu').classList.toggle('hidden');
+        });
+
+
+
+         // Toggle mobile menu
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        const profileButton = document.getElementById('profileButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        profileButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('hidden');
+            dropdownMenu.classList.toggle('opacity-0');
+            dropdownMenu.classList.toggle('scale-95');
+        });
+
+        // Close the dropdown when clicking outside
+        window.addEventListener('click', (event) => {
+            if (!profileButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add('hidden', 'opacity-0', 'scale-95');
+            }
         });
     </script>
 </body>
