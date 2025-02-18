@@ -379,7 +379,7 @@ class ProfileView(TemplateView):
 
 class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
-    template_name = 'registration/reset_password.html'
+    template_name = 'accounts/profile.html'
     success_url = reverse_lazy('sign-in')
     html_email_template_name = 'registration/reset_email.html'
 
@@ -387,7 +387,7 @@ class CustomPasswordResetView(PasswordResetView):
         context = super().get_context_data(**kwargs)
         context['protocol'] = 'https' if self.request.is_secure() else 'http'
         context['domain'] = self.request.get_host()
-        print(context)
+        context['Page_Name'] = "Password_Reset"
         return context
 
     def form_valid(self, form):
@@ -398,7 +398,7 @@ class CustomPasswordResetView(PasswordResetView):
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     form_class = CustomPasswordResetConfirmForm
-    template_name = 'registration/reset_password.html'
+    template_name = 'accounts/profile.html'
     success_url = reverse_lazy('sign-in')
 
     def form_valid(self, form):
