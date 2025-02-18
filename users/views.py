@@ -33,18 +33,37 @@ def is_organizer_or_admin(user):
     return user.groups.filter(name__in=['Organizer', 'Admin']).exists()
 
 
+# class EditProfileView(UpdateView):
+#     model = User
+#     form_class = EditProfileForm
+#     template_name = 'accounts/update_profile.html'
+#     context_object_name = 'form'
+
+#     def get_object(self):
+#         return self.request.user
+
+#     def form_valid(self, form):
+#         form.save()
+#         return redirect('profile')
+
 class EditProfileView(UpdateView):
     model = User
     form_class = EditProfileForm
-    template_name = 'accounts/update_profile.html'
+    template_name = 'accounts/profile.html'
     context_object_name = 'form'
 
     def get_object(self):
         return self.request.user
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['Page_Name'] = "Profile_Edit"
+        return context
+
     def form_valid(self, form):
         form.save()
         return redirect('profile')
+
 
 
 
@@ -109,8 +128,14 @@ class CustomLoginView(LoginView):
         
 
 class ChangePassword(PasswordChangeView):
-    template_name = 'accounts/password_change.html'
+    template_name = 'accounts/profile.html'
     form_class = CustomPasswordChangeForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['Page_Name'] = "Password_Change"
+        return context
+
 
 
 
@@ -340,12 +365,15 @@ class ProfileView(TemplateView):
 
         context['username'] = user.username
         context['email'] = user.email
+        context['first_name'] = user.first_name
+        context['last_name'] = user.last_name
         context['name'] = user.get_full_name()
         context['phone_number'] = user.phone_number
         context['profile_image'] = user.profile_image
 
         context['member_since'] = user.date_joined
         context['last_login'] = user.last_login
+        context['Page_Name'] = "Profile_Details"
         return context
 
 

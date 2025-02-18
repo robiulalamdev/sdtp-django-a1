@@ -32,11 +32,10 @@ urlpatterns = [
 
 
     path('profile/', ProfileView.as_view(), name='profile'),
-    path('password-change/', ChangePassword.as_view(), name='password_change'),
-    path('password-change/done/', PasswordChangeDoneView.as_view(
-        template_name='accounts/password_change_done.html'), name='password_change_done'),
-    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
-    path('password-reset/confirm/<uidb64>/<token>/',
+    path('profile/edit-profile/', EditProfileView.as_view(), name='edit_profile'),
+    path('profile/password-change/', ChangePassword.as_view(), name='password_change'),
+    path('profile/password-change/done/', PasswordChangeDoneView.as_view(template_name='accounts/password_change_done.html'), name='password_change_done'),
+    path('profile/password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('profile/password-reset/confirm/<uidb64>/<token>/',
          CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('edit-profile/', EditProfileView.as_view(), name='edit_profile')
 ]

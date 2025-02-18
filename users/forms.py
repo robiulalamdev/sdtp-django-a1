@@ -107,11 +107,11 @@ class LoginForm(AuthenticationForm):
     def __init__(self, *arg, **kwargs):
         super().__init__(*arg, **kwargs)
         self.fields['username'].widget.attrs.update({
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2',
             'placeholder': 'Enter username'
         })
         self.fields['password'].widget.attrs.update({
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2',
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2',
             'placeholder': 'Enter password'
         })
 
@@ -120,7 +120,7 @@ class AssignRoleForm(forms.Form):
         queryset=Group.objects.all(),
         empty_label="Select a Role",
         widget=forms.Select(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-4'
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4'
         }),
         label="Role"
     )
