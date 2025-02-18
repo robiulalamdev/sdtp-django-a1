@@ -32,8 +32,6 @@ class CustomRegistrationForm(forms.ModelForm):
         })
     )
 
-    # profile_image = forms.ImageField(upload_to='profile_images', blank=True, default='profile_images/default.png')
-    # phone_number = forms.TextInput(blank=True)
 
     class Meta:
         model = User
