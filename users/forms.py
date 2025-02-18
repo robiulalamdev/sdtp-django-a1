@@ -171,11 +171,28 @@ class CustomPasswordChangeForm(PasswordChangeForm):
 
 
 class CustomPasswordResetForm(PasswordResetForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs.update({
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'id': 'email',
+            'placeholder': 'Enter your email address',
+        })
 
 
 class CustomPasswordResetConfirmForm(SetPasswordForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].widget.attrs.update({
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'id': 'new_password1',
+            'placeholder': 'Enter new password',
+        })
+        self.fields['new_password2'].widget.attrs.update({
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'id': 'new_password2',
+            'placeholder': 'Confirm new password',
+        })
 
 
 

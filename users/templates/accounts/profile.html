@@ -98,6 +98,11 @@
 
                 <!-- Reset Password Section -->
                 {% if Page_Name == "Password_Reset" %}
+                {% include "accounts/password_reset.html" %}
+                {% endif %}
+                
+                <!-- New password section After Reset Password -->
+                {% if Page_Name == "New_Password" %}
                     {% include "accounts/password_reset.html" %}
                 {% endif %}
 

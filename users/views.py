@@ -401,6 +401,11 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'accounts/profile.html'
     success_url = reverse_lazy('sign-in')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['Page_Name'] = "New_Password"
+        return context
+
     def form_valid(self, form):
         messages.success(
             self.request, 'Password reset successfully')
