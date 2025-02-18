@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset - Event Management System</title>
+    <style>
+        /* Inline CSS for compatibility with email clients */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+            line-height: 1.6;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #3498db;
+            color: #ffffff;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .body {
+            padding: 30px;
+            background-color: #ffffff;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #666666;
+            border-top: 1px solid #e9ecef;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        .message {
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .highlight {
+            color: #3498db;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Event Management System</h1>
+        </div>
+        <div class="body">
+            <p>Hello {{ user.get_full_name|default:user.username }},</p>
+            <p>We received a request to reset the password for your Event Management System account. Don't worry, we've got you covered!</p>
+            <div class="message">
+                <p>To set a new password, simply click the button below:</p>
+            </div>
+            <p style="text-align: center;">
+                <a href="{{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}" class="button">
+                    Reset My Password
+                </a>
+            </p>
+            <p>This password reset link will expire in <span class="highlight">24 hours</span> for security reasons.</p>
+            <p>If you didn't request this password reset, please ignore this email or contact our support team if you have any concerns.</p>
+            <p>Thank you for using Event Management System. We're here to make your event planning experience seamless and enjoyable!</p>
+            <p>Best regards,<br>The Event Management System Team</p>
+        </div>
+        <div class="footer">
+            &copy; {{ year }} Event Management System. All rights reserved.<br>
+            Need help? Contact us at <a href="mailto:support@ems.com" style="color: #3498db;">support@ems.com</a>
+        </div>
+    </div>
+</body>
+</html>
