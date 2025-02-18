@@ -33,18 +33,6 @@ def is_organizer_or_admin(user):
     return user.groups.filter(name__in=['Organizer', 'Admin']).exists()
 
 
-# class EditProfileView(UpdateView):
-#     model = User
-#     form_class = EditProfileForm
-#     template_name = 'accounts/update_profile.html'
-#     context_object_name = 'form'
-
-#     def get_object(self):
-#         return self.request.user
-
-#     def form_valid(self, form):
-#         form.save()
-#         return redirect('profile')
 
 class EditProfileView(UpdateView):
     model = User
