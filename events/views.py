@@ -6,8 +6,12 @@ from django.contrib import messages
 from events.models import Event, Category
 from events.forms import EventForm, CategoryForm
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from users.views import is_admin, is_organizer_or_admin
+from django.views import View
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.generic import UpdateView, ListView, CreateView
 
 # 📌 Dashboard View
 def Dashboard(request):
@@ -117,6 +121,35 @@ def create_event(request):
     return render(request, 'events/event_form.html', {'form': form, 'title': 'Create Event', 'button_text': 'Create'})
 
 
+view_Event_decorators = [login_required, user_passes_test(is_organizer_or_admin, login_url='permission_denied')]
+
+@method_decorator(view_Event_decorators, name='dispatch')
+class CreateEventView(View):
+    template_name = 'events/event_form.html'
+
+    def get(self, request, *args, **kwargs):
+        form = EventForm()
+        return render(request, self.template_name, {
+            'form': form,
+            'title': 'Create Event',
+            'button_text': 'Create'
+        })
+
+    def post(self, request, *args, **kwargs):
+        print("FILES: ", request.FILES)
+        form = EventForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+
+        return render(request, self.template_name, {
+            'form': form,
+            'title': 'Create Event',
+            'button_text': 'Create'
+        })
+
+
 # 📌 Update Event
 @login_required
 @user_passes_test(is_organizer_or_admin, login_url='permission_denied')
@@ -133,6 +166,25 @@ def event_update(request, id):
 
     return render(request, 'events/event_form.html', {'form': form, 'title': 'Update Event', 'button_text': 'Update'})
 
+
+@method_decorator(view_Event_decorators, name='dispatch')
+class EventUpdateView(UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'events/event_form.html'
+    success_url = reverse_lazy('events')  
+    extra_context = {
+        'title': 'Update Event',
+        'button_text': 'Update'
+    }
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Event updated successfully!')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'There was an error updating the event.')
+        return super().form_invalid(form)
 
 # 📌 Delete Event
 @login_required
@@ -162,6 +214,16 @@ def Show_Categories(request):
     return render(request, 'category/categories.html', {'categories': categories})
 
 
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'category/categories.html'
+    context_object_name = 'categories'
+    ordering = ['-id']
+
+    def get_queryset(self):
+        return Category.objects.annotate(total_events=Count('events')).order_by('-id')
+
+
 # 📌 Create Category
 @login_required
 @user_passes_test(is_organizer_or_admin, login_url='permission_denied')
@@ -174,6 +236,27 @@ def create_category(request):
     else:
         form = CategoryForm()
     return render(request, 'category/category_form.html', {'category_form': form, 'title': 'Create Category', 'button_text': 'Create'})
+
+
+category_view_decorators = [
+    login_required,
+    user_passes_test(is_organizer_or_admin, login_url='permission_denied')
+]
+
+@method_decorator(category_view_decorators, name='dispatch')
+class CreateCategoryView(CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category/category_form.html'
+    success_url = reverse_lazy('categories')  
+    extra_context = {
+        'title': 'Create Category',
+        'button_text': 'Create'
+    }
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        return response
 
 
 # 📌 Update Category
