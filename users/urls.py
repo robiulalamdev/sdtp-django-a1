@@ -1,10 +1,10 @@
 from django.urls import path
-from users.views import sign_up, sign_in, sign_out, activate_user, admin_dashboard, create_group, assign_role, delete_user, add_participants, delete_group, remove_participant, organizer_dashboard, participant_dashboard, rsvp_event, CustomLoginView, ProfileView, ChangePassword, CustomPasswordResetView, CustomPasswordResetConfirmView, EditProfileView
+from users.views import sign_up, sign_in, sign_out, activate_user, admin_dashboard, create_group, assign_role, delete_user, add_participants, delete_group, remove_participant, organizer_dashboard, participant_dashboard, rsvp_event, SignUpView, CustomLoginView, ProfileView, ChangePassword, CustomPasswordResetView, CustomPasswordResetConfirmView, EditProfileView
 from django.contrib.auth.views import LogoutView, PasswordChangeDoneView
 
 
 urlpatterns = [
-    path('sign-up/', sign_up, name='sign-up'),
+    path('sign-up/', SignUpView.as_view(), name='sign-up'),
     # path('sign-in/', sign_in, name='sign-in'),
     path('sign-in/', CustomLoginView.as_view(), name='sign-in'),
     # path('sign-out/', sign_out, name='logout'),

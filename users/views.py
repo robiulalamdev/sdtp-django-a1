@@ -5,7 +5,7 @@ from users.forms import CustomRegistrationForm, AssignRoleForm, CreateGroupForm,
 from django.contrib import messages
 from users.forms import LoginForm
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.db.models import Prefetch, Count, Sum, Q
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.views.generic import  TemplateView, UpdateView
@@ -13,6 +13,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
 from events.models import Event, Category
 from users.signals import rsvp_signal  
+from django.views import View
+from django.utils.decorators import method_decorator
 
 
 
@@ -54,8 +56,6 @@ class EditProfileView(UpdateView):
 
 
 
-
-
 def sign_up(request):
     form = CustomRegistrationForm()
     
@@ -75,6 +75,39 @@ def sign_up(request):
             print("Form is not valid", form.errors) 
 
     return render(request, 'registration/sign_up.html', {"form": form, "button_text": "Register", "title":"Create an account"})
+
+
+class SignUpView(View):
+    template_name = 'registration/sign_up.html'
+
+    def get(self, request, *args, **kwargs):
+        form = CustomRegistrationForm()
+        return render(request, self.template_name, {
+            "form": form,
+            "button_text": "Register",
+            "title": "Create an account"
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = CustomRegistrationForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data.get('password'))
+            user.is_active = False
+            user.save()
+
+            messages.success(
+                request, 'A Confirmation mail sent. Please check your email')
+            return redirect('sign-in')
+        else:
+            print("Form is not valid", form.errors)
+
+        return render(request, self.template_name, {
+            "form": form,
+            "button_text": "Register",
+            "title": "Create an account"
+        })
 
 
 def sign_in(request):
@@ -214,7 +247,6 @@ def organizer_dashboard(request):
 @login_required
 @user_passes_test(is_participant, login_url='permission_denied')
 def participant_dashboard(request):
-    # events = Event.objects.select_related('category').prefetch_related('participants').annotate(total_participants=Count('participants', distinct=True))
     user = request.user
     events = Event.objects.filter(participants=user)  
     
@@ -343,7 +375,9 @@ def rsvp_event(request, event_id):
 
 
 
+view_profile_decorators = [login_required]
 
+@method_decorator(view_profile_decorators, name='dispatch')
 class ProfileView(TemplateView):
     template_name = 'accounts/profile.html'
 
